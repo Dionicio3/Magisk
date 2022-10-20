@@ -38,6 +38,10 @@ class MainViewModel : BaseViewModel()
 
 class MainActivity : SplashActivity<ActivityMainMd2Binding>() {
 
+    override val suReqLayoutType: Int
+        get() {
+            return checkDeviceType()
+        }
     override val layoutRes = R.layout.activity_main_md2
     override val viewModel by viewModel<MainViewModel>()
     override val navHostId: Int = R.id.main_nav_host

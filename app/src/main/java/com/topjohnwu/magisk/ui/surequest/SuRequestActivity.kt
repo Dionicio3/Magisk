@@ -20,8 +20,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class SuRequestActivity : UIActivity<ActivityRequestBinding>() {
-
-    override val layoutRes: Int = R.layout.activity_request
+    override val suReqLayoutType: Int
+        get() {
+            return checkDeviceType()
+        }
+    override val layoutRes: Int
+        get() {
+            return checkDeviceType()
+        }
     override val viewModel: SuRequestViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {

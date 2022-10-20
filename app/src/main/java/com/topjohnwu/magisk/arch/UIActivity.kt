@@ -1,5 +1,6 @@
 package com.topjohnwu.magisk.arch
 
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
@@ -12,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.google.android.material.snackbar.Snackbar
 import com.topjohnwu.magisk.BR
+import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.base.BaseActivity
 import com.topjohnwu.magisk.widget.Pre23CardViewBackgroundColorFixLayoutInflaterListener
@@ -20,6 +22,7 @@ import rikka.layoutinflater.view.LayoutInflaterFactory
 
 abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModelHolder {
 
+    abstract val suReqLayoutType: Int
     protected lateinit var binding: Binding
     protected abstract val layoutRes: Int
 
@@ -32,12 +35,12 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.factory2 = LayoutInflaterFactory(delegate)
-            .addOnViewCreatedListener(WindowInsetsHelper.LISTENER)
-            .apply {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    this.addOnViewCreatedListener(Pre23CardViewBackgroundColorFixLayoutInflaterListener.getInstance())
+                .addOnViewCreatedListener(WindowInsetsHelper.LISTENER)
+                .apply {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                        this.addOnViewCreatedListener(Pre23CardViewBackgroundColorFixLayoutInflaterListener.getInstance())
+                    }
                 }
-            }
 
         super.onCreate(savedInstanceState)
 
@@ -46,8 +49,8 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
         // We need to set the window background explicitly since for whatever reason it's not
         // propagated upstream
         obtainStyledAttributes(intArrayOf(android.R.attr.windowBackground))
-            .use { it.getDrawable(0) }
-            .also { window.setBackgroundDrawable(it) }
+                .use { it.getDrawable(0) }
+                .also { window.setBackgroundDrawable(it) }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -55,7 +58,7 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
             window?.decorView?.post {
                 // If navigation bar is short enough (gesture navigation enabled), make it transparent
                 if ((window.decorView.rootWindowInsets?.systemWindowInsetBottom
-                        ?: 0) < Resources.getSystem().displayMetrics.density * 40) {
+                                ?: 0) < Resources.getSystem().displayMetrics.density * 40) {
                     window.navigationBarColor = Color.TRANSPARENT
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         window.navigationBarDividerColor = Color.TRANSPARENT
@@ -81,11 +84,11 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
     }
 
     fun showSnackbar(
-        message: CharSequence,
-        length: Int = Snackbar.LENGTH_SHORT,
-        builder: Snackbar.() -> Unit = {}
+            message: CharSequence,
+            length: Int = Snackbar.LENGTH_SHORT,
+            builder: Snackbar.() -> Unit = {}
     ) = Snackbar.make(snackbarView, message, length)
-        .setAnchorView(snackbarAnchorView).apply(builder).show()
+            .setAnchorView(snackbarAnchorView).apply(builder).show()
 
     override fun onResume() {
         super.onResume()
@@ -99,5 +102,12 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
         is ContextExecutor -> event(this)
         is ActivityExecutor -> event(this)
         else -> Unit
+    }
+    fun checkDeviceType(): Int {
+        if(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) == true) {
+           return R.layout.activity_request_watch
+        } else {
+           return R.layout.activity_request
+        }
     }
 }
