@@ -105,9 +105,9 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
     }
     fun checkDeviceType(): Int {
         if(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) == true) {
-           return R.layout.activity_request_watch
+            return R.layout.activity_request_watch
         } else {
-           return R.layout.activity_request
+            return R.layout.activity_request
         }
     }
 }
